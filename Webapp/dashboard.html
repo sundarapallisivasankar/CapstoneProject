@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Movie Dashboard</title>
+  <style>
+    body {
+    margin: 0;
+    font-family: "Segoe UI", sans-serif;
+    background: linear-gradient(to right, #1f1c2c, #928dab);
+    color: #fff;
+    min-height: 100px;
+    display: flex;
+    flex-direction: column;
+  }
+
+  header {
+    padding: 10px 20px;
+    background: rgba(0, 0, 0, 0.7);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .logout {
+    color: #fff;
+    text-decoration: none;
+    font-weight: bold;
+    background-color: #e91e63;
+    padding: 5px 10px;
+    border-radius: 6px;
+    transition: background 0.3s;
+  }
+
+  .logout:hover {
+    background-color: #ad148e;
+  }
+
+  .search-bar {
+    padding: 25px;
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+  }
+
+  .search-bar input {
+    padding: 10px;
+    width: 300px;
+    border-radius: 6px;
+    border: none;
+  }
+
+  .search-bar button {
+    padding: 10px 20px;
+    border: none;
+    background-color: #03a9f4;
+    color: white;
+    font-weight: bold;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background 0.3s;
+  }
+
+  .search-bar button:hover {
+    background-color: #026dd1;
+  }
+
+  #movieDetails {
+    margin: 20px auto;
+    width: 80%;
+    max-width: 700px;
+    background-color: rgba(0,0,0,0.7);
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+  }
+
+  #movieDetails img {
+    max-width: 100%;
+    border-radius: 8px;
+    margin-bottom: 1rem;
+  }
+
+  #movieDetails h2 {
+    margin-top: 0;
+  }
+
+  #movieDetails p {
+    line-height: 1.6;
+  }
+
+  </style>
+</head>
+<body>
+  <header>
+    <h1>🎬 MovieZone Dashboard</h1>
+    <a href="/logout" class="logout">Logout</a>
+  </header>
+
+  <main>
+    <form class="search-bar" id="searchForm">
+      <input type="text" id="movieInput" placeholder="Enter movie name..." />
+      <button type="submit">Search</button>
+    </form>
+    <div id="movieDetails"></div>
+  </main>
+  <script>
+    const form = document.getElementById("searchForm");
+    const movieInput = document.getElementById("movieInput");
+    const movieDetails = document.getElementById("movieDetails");
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const movieName = movieInput.value.trim();
+      if (!movieName) return;
+
+      try {
+        const res = await fetch(`https://www.omdbapi.com/?t=${encodeURIComponent(movieName)}&apikey=219f97a0`);
+        const data = await res.json();
+
+        if (data.Response === "False") {
+          movieDetails.innerHTML = `<p class="error">${data.Error}</p>`;
+          return;
+        }
+
+        movieDetails.innerHTML = `
+          <div class="movie-card">
+            <img src="${data.Poster}" alt="${data.Title} poster">
+            <div class="movie-info">
+              <h2>${data.Title}</h2>
+              <p><strong>Genre:</strong> ${data.Genre}</p>
+              <p><strong>Cast:</strong> ${data.Actors}</p>
+              <p><strong>Rating:</strong> ${data.imdbRating}</p>
+              <p><strong>Released:</strong> ${data.Released}</p>
+              <p><a href="https://www.google.com/search?q=watch+${encodeURIComponent(data.Title)}+online" target="_blank">Watch Online</a></p>
+              <p><a href="https://www.google.com/search?q=download+${encodeURIComponent(data.Title)}+movie" target="_blank">Download</a></p>
+            </div>
+          </div>
+        `;
+      } catch (err) {
+        console.error("Fetch error:", err);
+        movieDetails.innerHTML = `<p class="error">Something went wrong. Please try again later.</p>`;
+      }
+    });
+
+  </script>
+</body>
+</html>
